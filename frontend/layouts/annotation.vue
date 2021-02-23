@@ -53,18 +53,20 @@
               :approved="approved"
               :disabled="currentDoc ? false : true"
             />
-            <filter-button
-              v-model="filterOption"
-            />
-            <guideline-button />
-            <clear-annotations-button />
             <comment-button />
-            <settings
-              v-model="options"
-              :errors="errors"
-            />
+            <clear-annotations-button />
           </v-col>
           <v-spacer />
+          <v-col class="text-right">
+            <settings
+                v-model="options"
+                :errors="errors"
+            />
+            <guideline-button />
+            <filter-button
+                v-model="filterOption"
+            />
+          </v-col>
           <v-col>
             <pagination
               v-model="page"
@@ -107,13 +109,14 @@
 
 <script>
 import { mapActions, mapGetters, mapState, mapMutations } from 'vuex'
+import ApiService from '@/services/api.service'
 import BottomNavigator from '@/components/containers/annotation/BottomNavigator'
 import ClearAnnotationsButton from '@/components/containers/annotation/ClearAnnotationsButton.vue'
 import GuidelineButton from '@/components/containers/annotation/GuidelineButton'
 import MetadataBox from '@/components/organisms/annotation/MetadataBox'
 import FilterButton from '@/components/containers/annotation/FilterButton'
 import ApproveButton from '@/components/containers/annotation/ApproveButton'
-import CommentButton from '../components/containers/comments/CommentButton.vue'
+import CommentButton from '~/components/containers/comments/CommentButton.vue'
 import Pagination from '~/components/containers/annotation/Pagination'
 import TheHeader from '~/components/organisms/layout/TheHeader'
 import TheSideBar from '~/components/organisms/layout/TheSideBar'
@@ -160,6 +163,20 @@ export default {
       snackbar: false,
       text: ''
     }
+  },
+
+  created: function() {
+    ApiService.instance.interceptors.response.use(undefined, function (err) {
+      return new Promise(function (resolve, reject) {
+        if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+          this.signout();
+        }
+        if (err.status === 403) {
+          this.$router.push(this.localePath('/'))
+        }
+        throw err;
+      });
+    });
   },
 
   computed: {
@@ -264,9 +281,14 @@ export default {
   },
 
   methods: {
+    ...mapActions('auth', ['logout']),
     ...mapActions('documents', ['getDocumentList', 'autoLabeling']),
     ...mapMutations('documents', ['setCurrent', 'setLoading']),
-    ...mapMutations('projects', ['saveSearchOptions'])
+    ...mapMutations('projects', ['saveSearchOptions']),
+    signout() {
+      this.logout()
+      this.$router.push(this.localePath('/'))
+    }
   }
 }
 </script>

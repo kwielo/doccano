@@ -68,6 +68,12 @@
     >
       {{ $t('user.login') }}
     </v-btn>
+    <v-subheader
+      v-if="isAuthenticated"
+      offset-y
+    >
+      {{ getUsername() }} <span v-if="rolesCsv"> ({{ rolesCsv }})</span>
+    </v-subheader>
     <v-menu
       v-if="isAuthenticated"
       offset-y
@@ -118,8 +124,15 @@ export default {
 
   computed: {
     ...mapGetters('auth', ['isAuthenticated', 'getUsername']),
-    ...mapGetters('projects', ['currentProject']),
+    ...mapGetters('projects', ['currentProject', 'getCurrentUserRole']),
 
+    rolesCsv() {
+      return [
+          this.getCurrentUserRole.is_project_admin ? 'Project Admin' : null,
+          this.getCurrentUserRole.is_annotator ? 'Annotator' : null,
+          this.getCurrentUserRole.is_annotation_approver ? 'Approver' : null,
+      ].filter(r => r).join(', ')
+    },
     isIndividualProject() {
       return this.$route.name && this.$route.name.startsWith('projects-id')
     }

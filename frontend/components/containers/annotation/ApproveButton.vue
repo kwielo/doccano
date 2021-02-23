@@ -12,10 +12,10 @@
         @click="approveDocument"
       >
         <v-icon v-if="approved">
-          mdi-check
+          mdi-clipboard-check-outline
         </v-icon>
         <v-icon v-else>
-          mdi-close
+          mdi-clipboard-clock-outline
         </v-icon>
       </v-btn>
     </template>

@@ -10,7 +10,7 @@
         @click="dialog=true"
       >
         <v-icon>
-          mdi-delete-outline
+          mdi-backspace-outline
         </v-icon>
       </v-btn>
     </template>
